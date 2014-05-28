@@ -1,0 +1,22 @@
+#!/usr/bin/php5
+<?php
+$exit_code = 0;
+$remote_json = "https://ws.ovh.com/dedicated/r2/ws.dispatcher/getAvailabilityAndOptionsFromReference?callback=Request.JSONP.request_map.request_1&params=%7B%22sessionId%22%3A%22classic%2Fanonymous-5237d4f0c3bc53d328bafcf1c28d2902%22%2C%22reference%22%3A%22142sk1%22%7D";
+$remote_list = file_get_contents($remote_json);
+if($remote_list == FALSE) {
+	print("Error getting servers list.");
+	exit(1);
+}
+$remote_obj = json_decode(str_replace(");","",str_replace("Request.JSONP.request_map.request_1(","",$remote_list)), TRUE);
+foreach($remote_obj["answer"][0]["zones"] as $remote_zones) {
+	if ($remote_zones["availability"] != 'unavailable') {
+		$result = sprintf("%s ", $remote_zones["zone"]);
+		$exit_code = 1;
+	}
+}
+if (!isset($result)) {
+	$result = sprintf("No servers found.");
+}
+printf($result);
+exit($exit_code);
+?>
