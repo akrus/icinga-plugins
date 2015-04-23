@@ -1,32 +1,22 @@
 #!/usr/bin/php5
 <?php
 $exit_code = 0;
-//$remote_json = "https://ws.ovh.com/dedicated/r2/ws.dispatcher/getAvailabilityAndOptionsFromReference?callback=Request.JSONP.request_map.request_1&params=%7B%22sessionId%22%3A%22classic%2Fanonymous-5237d4f0c3bc53d328bafcf1c28d2902%22%2C%22reference%22%3A%22142sk1%22%7D";
-//$remote_json = "https://ws.ovh.com/dedicated/r2/ws.dispatcher/getAvailabilityAndOptionsFromReference?callback=Request.JSONP.request_map.request_1&params=%7B%22sessionId%22%3A%22classic%2Fanonymous-c7dcd3748930b80f2364231e0a1f5bef%22%2C%22reference%22%3A%22142sk3%22%7D";
 $remote_json = "https://ws.ovh.com/dedicated/r2/ws.dispatcher/getAvailability2?callback=Request.JSONP.request_map.request_0";
 $remote_list = file_get_contents($remote_json);
-//printf($remote_list); die();
 if($remote_list == FALSE) {
 	print("Error getting servers list.");
 	exit(1);
 }
 $remote_obj = json_decode(str_replace(");","",str_replace("Request.JSONP.request_map.request_0(","",$remote_list)), TRUE);
-//echo json_last_error(), PHP_EOL, PHP_EOL;
-//print_r($remote_obj);die();
-//foreach($remote_obj->availability as $remote_keys) {
-//	if ($remote_keys->reference == "142sk1") {
-//print_r($remote_obj["answer"]["availability"][164]["zones"]);die();
-		foreach($remote_obj["answer"]["availability"][164]["zones"] as $remote_zones) {
-			if ($remote_zones["availability"] != 'unknown' && $remote_zones["zone"] != 'bhs') {
-				$result = sprintf("%s ", $remote_zones["zone"]);
-				$exit_code = 1;
-			}
-		}
-		if (!isset($result)) {
-			$result = sprintf("No servers found.");
-		}
-//	}
-//}
+foreach($remote_obj["answer"]["availability"][164]["zones"] as $remote_zones) {
+	if ($remote_zones["availability"] != 'unknown' && $remote_zones["zone"] != 'bhs') {
+		$result = sprintf("%s ", $remote_zones["zone"]);
+		$exit_code = 1;
+	}
+}
+if (!isset($result)) {
+	$result = sprintf("No servers found.");
+}
 printf($result);
 exit($exit_code);
 ?>
